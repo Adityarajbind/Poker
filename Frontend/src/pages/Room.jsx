@@ -15,7 +15,9 @@ const Room = () => {
     socket.on("room-state", (roomData) => {
       setRoom(roomData);
     });
-
+    socket.on("game-started", () => {
+      navigate(`/game/${roomCode}`);
+    });
     return () => {
       socket.off("room-state");
     };
@@ -32,30 +34,70 @@ const Room = () => {
 
     navigate("/");
   };
-
+  const addBot = () => {
+    socket.emit("add-bot", {
+      roomCode,
+    });
+  };
+  const removeBot = () => {
+    socket.emit("remove-bot", {
+      roomCode,
+    });
+  };
+  const startGame = () => {
+    socket.emit("start-game", {
+      roomCode,
+    });
+  };
   if (!room) return <div>Loading...</div>;
 
   return (
     <div>
       <h1>{room.roomCode}</h1>
-
+      <button onClick={addBot} className="bg-orange-500 px-4 py-2 rounded-lg">
+        Add Bot
+      </button>
       {room.players.map((player) => (
         <div
           key={player.user}
           className="flex justify-between border p-3 rounded"
         >
-          <span>{player.username}</span>
+          <div className="flex items-center gap-2">
+            <span>{player.username}</span>
 
+            {player.isBot && (
+              <span className="text-xs bg-orange-500 px-2 py-1 rounded">
+                BOT
+              </span>
+            )}
+          </div>
           <span>{player.ready ? "🟢 Ready" : "⚪ Not Ready"}</span>
+          {player.isBot ? (
+            <button
+              onClick={removeBot}
+              className="bg-red-300 px-4 py-2 rounded-lg"
+            >
+              Remove Bot
+            </button>
+          ) : (
+            <button
+              onClick={leaveRoom}
+              className="bg-red-600 px-4 py-2 rounded-lg"
+            >
+              Leave Room
+            </button>
+          )}
           <button
-  onClick={leaveRoom}
-  className="bg-red-600 px-4 py-2 rounded-lg"
->
-  Leave Room
-</button>
+            onClick={toggleReady}
+            className="bg-yellow-200 px-4 py-2 rounded-lg"
+          >
+            ready Nigga ?
+          </button>
         </div>
-        
       ))}
+      <button onClick={startGame} className="cursor-pointer bg-green-600 px-4 py-2 rounded-lg">
+        Start Game
+      </button>
     </div>
   );
 };

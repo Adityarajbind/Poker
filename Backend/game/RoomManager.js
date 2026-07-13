@@ -17,13 +17,13 @@ class RoomManager {
     return game;
   }
 
+  deleteRoom(roomCode) {
+    this.rooms.delete(roomCode);
+  }
   getRoom(roomCode) {
     return this.rooms.get(roomCode);
   }
 
-  deleteRoom(roomCode) {
-    this.rooms.delete(roomCode);
-  }
 
   hasRoom(roomCode) {
     return this.rooms.has(roomCode);

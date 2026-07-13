@@ -11,3 +11,4 @@ const BOT_NAMES = [
   "AllInBot",
 ];
 
+export default BOT_NAMES;

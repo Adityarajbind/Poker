@@ -1,5 +1,5 @@
 import Deck from "./Deck.js";
-
+import HandEvaluator from "./HandEvaluator.js";
 class PokerGame {
   constructor() {
     this.players = [];
@@ -41,6 +41,8 @@ class PokerGame {
     // Reset game state
     this.communityCards = [];
     this.pot = 0;
+    this.currentBet = 0;
+    this.lastRaiser = null;
     this.gameStage = "preflop";
 
     // Reset every player
@@ -163,11 +165,16 @@ class PokerGame {
 
     winner.chips += this.pot;
 
-    console.log(`${winner.username} wins ${this.pot} chips`);
+    this.winners = [
+      {
+        username: winner.username,
+        hand: "Fold",
+      },
+    ];
 
     this.pot = 0;
 
-    this.gameStage = "waiting";
+    this.gameStage = "finished";
   }
   nextPlayer() {
     const next = this.findNextActivePlayer(this.currentPlayer);
@@ -344,9 +351,31 @@ class PokerGame {
     });
 
     this.pot = 0;
+
     this.gameStage = "finished";
 
+    this.winners = winners.map((w) => ({
+      username: w.player.username,
+      hand: w.hand.name,
+    }));
+
     return winners;
+  }
+  startNextHand() {
+    // Remove busted players
+    this.players = this.players.filter((player) => player.chips > 0);
+
+    // Game cannot continue
+    if (this.players.length < 2) {
+      this.gameStage = "gameover";
+      return;
+    }
+
+    // Move dealer button
+    this.rotateDealer();
+
+    // Start a fresh hand
+    this.startGame();
   }
 }
 

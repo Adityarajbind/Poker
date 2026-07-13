@@ -34,7 +34,7 @@ const Home = () => {
     <div className="min-h-screen bg-[#09090B] text-white">
       {/* Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 left-1/2 h-[450px] w-[450px] -translate-x-1/2 rounded-full bg-orange-500/15 blur-[170px]" />
+        <div className="absolute top-20 left-1/2 h-112.5 w-112.5 -translate-x-1/2 rounded-full bg-orange-500/15 blur-[170px]" />
         <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-orange-600/10 blur-[150px]" />
       </div>
 
@@ -111,7 +111,7 @@ const Home = () => {
 
           {/* Bots */}
 
-          <div className="rounded-3xl border border-orange-500/20 bg-gradient-to-br from-orange-500/15 to-white/5 p-8 backdrop-blur-xl">
+          <div className="rounded-3xl border border-orange-500/20 bg-linear-to-br from-orange-500/15 to-white/5 p-8 backdrop-blur-xl">
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10">
               <Bot className="text-orange-400" />
             </div>
