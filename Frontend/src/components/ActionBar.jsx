@@ -1,56 +1,130 @@
-import { useState } from "react";
-const ActionBar = ({ fold, check, call, raise,actions }) => {
-  const [raiseAmount, setRaiseAmount] = useState(50);
+import { useEffect, useState } from "react";
+
+const ActionBar = ({
+  actions,
+  player,
+  fold,
+  check,
+  call,
+  raise,
+  bet,
+  allIn,
+}) => {
+  const [showSlider, setShowSlider] = useState(false);
+  const [amount, setAmount] = useState(20);
+
+  useEffect(() => {
+    if (player) {
+      setAmount(Math.min(20, player.chips));
+    }
+  }, [player]);
+
+  const confirm = () => {
+    if (amount >= player.chips) {
+      allIn();
+    } else if (actions.includes("raise")) {
+      raise(amount);
+    } else {
+      bet(amount);
+    }
+
+    setShowSlider(false);
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-zinc-950 border-t border-zinc-800 p-5">
-      <div className="flex justify-center gap-4">
-        {actions.includes("fold") && <button className="bg-green-400 px-4 py-2 rounded-md text-white" onClick={fold}>Fold</button>}
+    <>
+      {/* Slider */}
+      {showSlider && (
+        <div className="fixed bottom-15 right-0 z-50 flex flex-col items-center gap-4 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-2">
 
-        {actions.includes("check") && <button className="bg-green-400 px-4 py-2 rounded-md text-white" onClick={check}>Check</button>}
+          <span className="text-xl font-bold text-orange-400">
+            {amount >= player.chips ? "ALL IN" : amount}
+          </span>
 
-        {actions.includes("call") && <button className="bg-green-400 px-4 py-2 rounded-md text-white" onClick={call}>Call</button>}
+          <input
+            type="range"
+            min={20}
+            max={player.chips}
+            step={10}
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            className="h-56 w-4/5 cursor-pointer appearance-none bg-gray-400 rounded-md"
+            style={{
+              writingMode: "vertical-lr",
+              direction: "rtl",
+            }}
+          />
 
-        {actions.includes("raise") && (
-          <>
-            <input
-              type="range"
-              min={20}
-              max={500}
-              step={10}
-              value={raiseAmount}
-              onChange={(e) => setRaiseAmount(Number(e.target.value))}
-              className="w-72"
-            />
+          <button
+            onClick={confirm}
+            className={`rounded-lg px-3 py-1.5 font-bold ${
+              amount >= player.chips
+                ? "bg-red-600"
+                : "bg-orange-500"
+            }`}
+          >
+            {amount >= player.chips
+              ? "ALL IN"
+              : actions.includes("raise")
+              ? "Raise"
+              : "Bet"}
+          </button>
+        </div>
+      )}
 
-            <p className="text-center text-white">Raise : {raiseAmount}</p>
+      {/* Bottom Bar */}
+      <div className="fixed bottom-0 left-0 flex w-full justify-center gap-4 border-t border-zinc-800 bg-zinc-950 px-4 py-2 text-white">
 
-            <button onClick={() => raise(raiseAmount)} className="bg-green-400 px-4 py-2 rounded-md text-white">Raise</button>
-          </>
+        {actions.includes("fold") && (
+          <button
+            onClick={fold}
+            className="rounded-lg bg-red-400 px-4 py-2"
+          >
+            Fold
+          </button>
         )}
 
-        {actions.includes("bet") && (
-          <>
-            <input
-              type="range"
-              min={20}
-              max={500}
-              step={10}
-              value={raiseAmount}
-              onChange={(e) => setRaiseAmount(Number(e.target.value))}
-              className="w-72"
-            />
+        {actions.includes("check") && (
+          <button
+            onClick={check}
+            className="rounded-lg bg-green-500 px-4 py-2"
+          >
+            Check
+          </button>
+        )}
 
-            <p className="text-center text-white">Raise : {raiseAmount}</p>
+        {actions.includes("call") && (
+          <button
+            onClick={call}
+            className="rounded-lg bg-green-500 px-4 py-2"
+          >
+            Call
+          </button>
+        )}
 
-            <button onClick={() => raise(raiseAmount)} className="bg-green-400 px-4 py-2 rounded-md text-white">Bet</button>
-          </>
+        {(actions.includes("raise") || actions.includes("bet")) && (
+          <button
+            onClick={() => setShowSlider((prev) => !prev)}
+            className="rounded-lg bg-green-500 px-4 py-2"
+          >
+            {showSlider
+              ? "Cancel"
+              : actions.includes("raise")
+              ? "Raise"
+              : "Bet"}
+          </button>
         )}
 
         {actions.includes("allin") && (
-          <button onClick={() => allIn()} className="bg-green-400 px-4 py-2 rounded-md text-white">All In</button>
+          <button
+            onClick={allIn}
+            className="rounded-lg bg-red-500 px-4 py-2"
+          >
+            All In
+          </button>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

@@ -20,3 +20,13 @@
     z-index: 5;
   }
 }
+  /* --- WebKit (Chrome, Safari, Edge) --- */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 45px;      /* Rectangle width */
+    height: 8px;     /* Rectangle height */
+    background: #13bc3a;
+    border-radius: 4px; /* Makes the thumb a rectangle */
+    cursor: pointer;
+  }

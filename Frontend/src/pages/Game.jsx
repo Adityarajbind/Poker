@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
-
+import { useAuth } from "../context/AuthContext";
 import PokerTable from "../components/PokerTable";
 import PlayerSeat from "../components/PlayerSeat";
 import ActionBar from "../components/ActionBar";
 
 const Game = () => {
+  const { userId } = useAuth();
   const [showWinner, setShowWinner] = useState(false);
   const { roomCode } = useParams();
   const socket = useSocket();
@@ -52,59 +53,35 @@ const Game = () => {
 
   return (
     <div className="min-h-screen bg-[#09090B] flex flex-col items-center justify-center gap-8">
-      {
-showWinner && (
-<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      {showWinner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="rounded-3xl bg-zinc-900 border border-orange-500 p-10">
+            <h1 className="text-4xl font-bold text-orange-400">Winner</h1>
 
-    <div className="rounded-3xl bg-zinc-900 border border-orange-500 p-10">
+            {game.winners.map((winner) => (
+              <div key={winner.username} className="mt-4 text-center">
+                <div className="text-2xl">{winner.username}</div>
 
-        <h1 className="text-4xl font-bold text-orange-400">
-            Winner
-        </h1>
-
-        {game.winners.map((winner)=>(
-            <div
-                key={winner.username}
-                className="mt-4 text-center"
-            >
-                <div className="text-2xl">
-                    {winner.username}
-                </div>
-
-                <div className="text-zinc-400">
-                    {winner.hand}
-                </div>
-            </div>
-        ))}
-
-    </div>
-
-</div>
-)
-}
-      <PokerTable game={game} />
-
-      <div className="grid grid-cols-3 gap-6">
-        {game.players.map((player) => (
-          <>
-            <PlayerSeat
-              key={player.id}
-              player={player}
-              isCurrentPlayer={
-                player.id === game.players[game.currentPlayer].id
-              }
-            />
-          </>
-        ))}
+                <div className="text-zinc-400">{winner.hand}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="mb-12 w-full flex justify-center">
+              <PokerTable game={game} myId={userId} />
       </div>
 
-      <ActionBar
-      actions={game.availableActions}
-        fold={() => playerAction("fold")}
-        check={() => playerAction("check")}
-        call={() => playerAction("call")}
-    raise={(amount)=>playerAction("raise",amount)}
-      />
+<ActionBar
+  actions={game.availableActions}
+  player={game.players[game.currentPlayer]}
+  fold={() => playerAction("fold")}
+  check={() => playerAction("check")}
+  call={() => playerAction("call")}
+  raise={(amount) => playerAction("raise", amount)}
+  bet={(amount) => playerAction("bet", amount)}
+  allIn={() => playerAction("allin")}
+/>
     </div>
   );
 };

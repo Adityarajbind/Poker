@@ -61,6 +61,7 @@ if (current) {
 }
   target.emit("game-state", {
     pot: game.pot,
+    dealerIndex: game.dealerIndex,
     currentPlayer: game.currentPlayer,
     currentPlayerId: game.players[game.currentPlayer]?.id,
     currentBet: game.currentBet,
@@ -145,8 +146,8 @@ export default function roomEvents(io, socket) {
       return;
     }
 
-    // Maximum 9 players
-    if (room.players.length >= 9) {
+    // Maximum 6 players
+    if (room.players.length >= 6) {
       return;
     }
 
