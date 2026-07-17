@@ -25,6 +25,7 @@ function playBotTurn(io, roomCode, game) {
   if (game.gameStage === "finished") {
     setTimeout(() => {
       game.startNextHand();
+      io.to(roomCode).emit("game-started");
 
       emitGameState(io.to(roomCode), game);
 
@@ -36,29 +37,29 @@ function playBotTurn(io, roomCode, game) {
 function emitGameState(target, game) {
   const current = game.players[game.currentPlayer];
 
-const availableActions = [];
+  const availableActions = [];
 
-if (current) {
-  availableActions.push("fold");
+  if (current) {
+    availableActions.push("fold");
 
-  if (current.currentBet === game.currentBet) {
-    availableActions.push("check");
+    if (current.currentBet === game.currentBet) {
+      availableActions.push("check");
+
+      if (current.chips > 0) {
+        availableActions.push("bet");
+      }
+    } else {
+      availableActions.push("call");
+
+      if (current.chips > game.currentBet - current.currentBet) {
+        availableActions.push("raise");
+      }
+    }
 
     if (current.chips > 0) {
-      availableActions.push("bet");
-    }
-  } else {
-    availableActions.push("call");
-
-    if (current.chips > game.currentBet - current.currentBet) {
-      availableActions.push("raise");
+      availableActions.push("allin");
     }
   }
-
-  if (current.chips > 0) {
-    availableActions.push("allin");
-  }
-}
   target.emit("game-state", {
     pot: game.pot,
     dealerIndex: game.dealerIndex,
@@ -296,13 +297,13 @@ export default function roomEvents(io, socket) {
           return;
       }
       console.log(
-  "Broadcasting",
-  action,
-  "Current player:",
-  game.currentPlayer,
-  "Stage:",
-  game.gameStage
-);
+        "Broadcasting",
+        action,
+        "Current player:",
+        game.currentPlayer,
+        "Stage:",
+        game.gameStage,
+      );
 
       emitGameState(io.to(roomCode), game);
 
