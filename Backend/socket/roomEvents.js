@@ -3,6 +3,17 @@ import BOT_NAMES from "../game/BotNames.js";
 import mongoose from "mongoose";
 import RoomManager from "../game/RoomManager.js";
 import Player from "../game/Player.js";
+function finishHand(io, roomCode, game) {
+  setTimeout(() => {
+    game.startNextHand();
+
+    io.to(roomCode).emit("game-started");
+
+    emitGameState(io.to(roomCode), game);
+
+    playBotTurn(io, roomCode, game);
+  }, 2000);
+}
 function playBotTurn(io, roomCode, game) {
   while (true) {
     if (game.gameStage === "finished" || game.gameStage === "gameover") {
@@ -23,14 +34,9 @@ function playBotTurn(io, roomCode, game) {
   }
 
   if (game.gameStage === "finished") {
-    setTimeout(() => {
-      game.startNextHand();
-      io.to(roomCode).emit("game-started");
+    finishHand(io, roomCode, game);
 
-      emitGameState(io.to(roomCode), game);
-
-      playBotTurn(io, roomCode, game);
-    }, 2000);
+    return;
   }
 }
 
@@ -64,6 +70,8 @@ function emitGameState(target, game) {
     pot: game.pot,
     dealerIndex: game.dealerIndex,
     currentPlayer: game.currentPlayer,
+    turnStartedAt: game.turnStartedAt,
+    turnDuration: 5000,
     currentPlayerId: game.players[game.currentPlayer]?.id,
     currentBet: game.currentBet,
     gameStage: game.gameStage,
@@ -226,6 +234,20 @@ export default function roomEvents(io, socket) {
 
     const game = RoomManager.createRoom(roomCode);
 
+    game.onTurnTimeout = () => {
+      console.log("Player timed out");
+
+      game.fold();
+
+      emitGameState(io.to(roomCode), game);
+
+      if (game.gameStage === "finished") {
+        finishHand(io, roomCode, game);
+      } else {
+        playBotTurn(io, roomCode, game);
+      }
+    };
+
     room.players.forEach((player) => {
       game.addPlayer(
         new Player({
@@ -296,18 +318,14 @@ export default function roomEvents(io, socket) {
         default:
           return;
       }
-      console.log(
-        "Broadcasting",
-        action,
-        "Current player:",
-        game.currentPlayer,
-        "Stage:",
-        game.gameStage,
-      );
 
       emitGameState(io.to(roomCode), game);
 
-      playBotTurn(io, roomCode, game);
+      if (game.gameStage === "finished") {
+        finishHand(io, roomCode, game);
+      } else {
+        playBotTurn(io, roomCode, game);
+      }
     } catch (err) {
       socket.emit("action-error", err.message);
     }

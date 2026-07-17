@@ -17,21 +17,21 @@ const PokerTable = ({ game, player, myId, dealTrigger }) => {
   const [animateHoleCards, setAnimateHoleCards] = useState(false);
   const [renderedCommunityCards, setRenderedCommunityCards] = useState([]);
   const [flyingChips, setFlyingChips] = useState([]);
-  const [hideCards, setHideCards] = useState(true)
+  const [hideCards, setHideCards] = useState(true);
   const prevBetsRef = useRef({});
   const prevStageRef = useRef("");
   const distributionAnimatedRef = useRef(false);
-useEffect(() => {
-  if (game.gameStage === "finished") {
-    setHideCards(false)
-    const timer = setTimeout(() => {
-      setHideCards(true);
-    }, 1000);
-    return () => clearTimeout(timer)
-  }
+  useEffect(() => {
+    if (game.gameStage === "finished") {
+      setHideCards(false);
+      const timer = setTimeout(() => {
+        setHideCards(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
 
-  setHideCards(true);
-}, [game.gameStage]);
+    setHideCards(true);
+  }, [game.gameStage]);
   const seatPositions = [
     "-bottom-2 left-1/2 -translate-x-1/2", // You
     "top-0 left-1/2 -translate-x-1/2",
@@ -75,12 +75,17 @@ useEffect(() => {
       return game.communityCards.map((card) => {
         const cardKey = `${card.name}_${card.suit}`;
         const exists = prev.some((pc) => `${pc.name}_${pc.suit}` === cardKey);
-        
+
         // Find stagger position among the newly added cards in this state cycle
         const newCards = game.communityCards.filter(
-          (c) => !prev.some((pc) => `${pc.name}_${pc.suit}` === `${c.name}_${c.suit}`)
+          (c) =>
+            !prev.some(
+              (pc) => `${pc.name}_${pc.suit}` === `${c.name}_${c.suit}`,
+            ),
         );
-        const staggerIndex = newCards.findIndex((c) => `${c.name}_${c.suit}` === cardKey);
+        const staggerIndex = newCards.findIndex(
+          (c) => `${c.name}_${c.suit}` === cardKey,
+        );
 
         return {
           ...card,
@@ -115,11 +120,15 @@ useEffect(() => {
     });
 
     // Distribute Pot: Cascade chips from pot to winner(s)
-    if (game.gameStage === "finished" && !distributionAnimatedRef.current && game.winners?.length > 0) {
+    if (
+      game.gameStage === "finished" &&
+      !distributionAnimatedRef.current &&
+      game.winners?.length > 0
+    ) {
       distributionAnimatedRef.current = true;
       game.winners.forEach((winner) => {
         const winnerIndex = game.players.findIndex(
-          (p) => p.id === winner.id || p.username === winner.username
+          (p) => p.id === winner.id || p.username === winner.username,
         );
         if (winnerIndex !== -1) {
           // Generate 6 staggered cascading chips for realism
@@ -157,11 +166,15 @@ useEffect(() => {
           className="table-cloth absolute top-0 left-0 w-full h-full opacity-20"
           style={{ backgroundImage: 'url("/tablCloth.png")' }}
         ></div>
-        
+
         {/* Pot */}
         <div className="absolute top-1/4 flex flex-col items-center">
-          <h2 className="text-white text-3xl max-sm:text-[1.6rem] font-bold">Pot</h2>
-          <p className="text-yellow-400 text-2xl max-sm:text-xl mb-1">{game.pot} $</p>
+          <h2 className="text-white text-3xl max-sm:text-[1.6rem] font-bold">
+            Pot
+          </h2>
+          <p className="text-yellow-400 text-2xl max-sm:text-xl mb-1">
+            {game.pot} $
+          </p>
         </div>
 
         {/* Community Cards */}
@@ -190,10 +203,14 @@ useEffect(() => {
             <PlayerSeat
               player={player}
               isDealer={index === game.dealerIndex}
-              isCurrentPlayer={player.id === game.players[game.currentPlayer]?.id}
+              isCurrentPlayer={
+                player.id === game.players[game.currentPlayer]?.id
+              }
               hideCards={player.id !== myId && hideCards}
               animateDeal={animateHoleCards}
               seatIndex={index}
+              turnStartedAt={game.turnStartedAt}
+              turnDuration={game.turnDuration}
             />
             {player.currentBet > 0 && (
               <div
@@ -212,7 +229,12 @@ useEffect(() => {
           <motion.div
             key={chip.id}
             className="absolute w-6 h-6 z-[999] pointer-events-none"
-            initial={{ left: `${chip.startX}%`, top: `${chip.startY}%`, scale: 0.4, opacity: 0 }}
+            initial={{
+              left: `${chip.startX}%`,
+              top: `${chip.startY}%`,
+              scale: 0.4,
+              opacity: 0,
+            }}
             animate={{
               left: `${chip.endX}%`,
               top: `${chip.endY}%`,
@@ -227,7 +249,11 @@ useEffect(() => {
             }}
             onAnimationComplete={() => removeChip(chip.id)}
           >
-            <img src="/chip.png" alt="flying chip" className="w-full h-full object-contain drop-shadow-md" />
+            <img
+              src="/chip.png"
+              alt="flying chip"
+              className="w-full h-full object-contain drop-shadow-md"
+            />
           </motion.div>
         ))}
       </AnimatePresence>

@@ -12,7 +12,8 @@ class PokerGame {
     this.pot = 0;
 
     this.currentPlayer = 0;
-
+    this.turnStartedAt = Date.now();
+    this.turnTimer = null;
     this.dealerIndex = 0;
 
     this.smallBlind = 10;
@@ -57,6 +58,7 @@ class PokerGame {
 
     // Set first player to act
     this.setFirstPlayer();
+    this.startTurn();
   }
   rotateDealer() {
     this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
@@ -83,6 +85,17 @@ class PokerGame {
 
     return -1;
   }
+  startTurn() {
+    this.turnStartedAt = Date.now();
+
+    clearTimeout(this.turnTimer);
+
+    this.turnTimer = setTimeout(() => {
+      if (this.onTurnTimeout) {
+        this.onTurnTimeout();
+      }
+    }, 25000);
+  }
   setFirstPlayerAfterDealer() {
     let index = this.dealerIndex;
 
@@ -93,6 +106,7 @@ class PokerGame {
 
       if (!player.folded && !player.allIn && player.chips > 0) {
         this.currentPlayer = index;
+        this.startTurn();
         return;
       }
     } while (index !== this.dealerIndex);
@@ -181,6 +195,7 @@ class PokerGame {
 
     if (next !== -1) {
       this.currentPlayer = next;
+      this.startTurn();
     }
   }
   finishPlayerAction() {
@@ -196,13 +211,14 @@ class PokerGame {
     }
   }
   fold() {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
-
     player.folded = true;
     player.hasActed = true;
     this.finishPlayerAction();
   }
   check() {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
 
     if (player.currentBet !== this.currentBet) {
@@ -213,6 +229,7 @@ class PokerGame {
     this.finishPlayerAction();
   }
   call() {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
 
     const amountToCall = this.currentBet - player.currentBet;
@@ -232,6 +249,7 @@ class PokerGame {
     this.finishPlayerAction();
   }
   bet(amount) {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
 
     if (this.currentBet !== 0) {
@@ -256,6 +274,7 @@ class PokerGame {
     this.finishPlayerAction();
   }
   raise(amount) {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
 
     const totalBet = this.currentBet + amount;
@@ -278,6 +297,7 @@ class PokerGame {
     this.finishPlayerAction();
   }
   allIn() {
+    clearTimeout(this.turnTimer);
     const player = this.players[this.currentPlayer];
 
     const amount = player.chips;
