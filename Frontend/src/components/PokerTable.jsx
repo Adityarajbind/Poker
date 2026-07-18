@@ -160,7 +160,7 @@ const PokerTable = ({ game, player, myId, dealTrigger }) => {
   };
 
   return (
-    <div className="w-[900px] h-[420px] max-sm:w-[75%] max-sm:h-[75vh] rounded-full relative">
+    <div className="w-[900px] h-[420px] max-sm:w-[80%] max-sm:h-[65vh] rounded-full relative">
       <div className="bg-green-800 rounded-full border-[5px] w-full h-full border-green-950 flex flex-col justify-center items-center absolute overflow-hidden">
         <div
           className="table-cloth absolute top-0 left-0 w-full h-full opacity-20"

@@ -57,7 +57,7 @@ const Room = () => {
   return (
     <div className="bg-neutral-800 min-h-screen w-full text-white">
       <div className="flex justify-between p-2">
-        <h1 className="flex items-center px-3 rounded-lg bg-neutral-600 font-bold">
+        <h1 className="flex items-center px-3 py-3 text-2xl rounded-lg bg-neutral-600 font-bold">
           CODE : {room.roomCode}
         </h1>
 
@@ -76,9 +76,9 @@ const Room = () => {
         return (
           <div
             key={player.user}
-            className="flex justify-between items-center bg-neutral-600 p-2 rounded m-2 mt-0"
+            className="flex justify-between items-center bg-neutral-600 py-4 px-2 rounded m-2 mt-0"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-[1.2rem] font-bold ">
               <span>{player.username}</span>
 
               {player.isBot && (
